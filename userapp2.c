@@ -18,8 +18,8 @@ int main()
 		printf("driver open success\n");
 	}
 	struct data s;
-	printf("user app 1 is running\n");
-	s.delay=5000;
+	printf("user app 2 is running\n");
+	s.delay=10000;
 	printf("Enter data to send to driver \n");
 	scanf("%[^\n]s",s.data);
 	ioctl(dev,STRUCT_WR,&s);
@@ -33,9 +33,7 @@ int main()
 	printf("rx data from kernal :\n");
 	printf("%s\n",s.data);
 	
-	
 	close(dev);
 	printf("driver is close\n");
 	return 0;
 }
-
