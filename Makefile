@@ -1,4 +1,4 @@
-obj-m := key.o
+obj-m := kerdriver.o
  
 KDIR = /lib/modules/$(shell uname -r)/build
  
@@ -9,11 +9,13 @@ all:
 clean:
 	make -C $(KDIR)  M=$(shell pwd) clean
 
-cp:
-	gcc userapp1.c -o ko
+u1:
+	gcc userapp1.c -o u1
+u2:
+	gcc userapp2.c -o u2
 
 i:
-	$(shell sudo insmod key.ko)
+	$(shell sudo insmod kerdriver.ko)
 
 r:
-	$(shell sudo rmmod key)
+	$(shell sudo rmmod kerdriver)

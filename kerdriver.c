@@ -3,7 +3,7 @@
 #include<linux/uaccess.h>
 #include<linux/delay.h>
 #include<linux/cdev.h>
-
+#include<linux/slab.h>
 #include<linux/mutex.h>
 
 #include"ioctl_header.h"
@@ -14,7 +14,8 @@ struct mutex mutex;
 struct cdev *my_cdev;
 dev_t dev_num;
 struct class *my_class;
-
+static char *app1_data;
+static char *app2_data;
 
 static int my_open (struct inode *inode, struct file *file)
 {
@@ -54,6 +55,26 @@ static long (my_ioctl) (struct file *file, unsigned int cmd, unsigned long arg)
 			pr_info("data send to user app\n");
 			mutex_unlock(&mutex);
 			break;
+		case APP1_WR:
+			copy_from_user(app1_data,(char*)arg,sizeof(app1_data));
+			pr_info("recived data is : %s \n",app1_data);
+
+ 			break;
+ 		case APP1_RD:
+			copy_to_user((char *)arg,app1_data,sizeof(app1_data));
+			pr_info("data send to user app\n");
+			break;
+			
+ 		case APP2_WR:
+			copy_from_user(app2_data,(char*)arg,sizeof(app2_data));
+			pr_info("recived data is : %s \n",app2_data);
+
+ 			break;
+ 		case APP2_RD:
+			copy_to_user((char *)arg,app2_data,sizeof(app2_data));
+			pr_info("data send to user app\n");
+			break;
+		
 		default:
 			pr_info("default run\n");
 			break;
@@ -78,6 +99,9 @@ static int init_fun(void)
 	my_class=class_create("class_ioctl");
 	device_create(my_class, NULL, dev_num,NULL,"%s", "kerdriver");
 	mutex_init(&mutex);
+	
+	app1_data=(char *)kzalloc(4000,GFP_KERNEL);
+	app2_data=(char *)kzalloc(4000,GFP_KERNEL);
 	pr_info("init fun called\n");
 	
 	
@@ -87,10 +111,13 @@ static int init_fun(void)
 }
 static void exit_fun(void)
 {
+	
 	device_destroy(my_class, dev_num);
 	class_destroy(my_class);
 	cdev_del(my_cdev);
 	unregister_chrdev_region(dev_num, 1);
+	kfree(app1_data);
+	kfree(app2_data);
 	pr_info("exit fun called\n");
 }
 module_init(init_fun);

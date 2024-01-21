@@ -7,6 +7,7 @@
 
 int main()
 {
+	char buf[200];
 	int dev=open("/dev/kerdriver",O_RDWR);
 	if(dev<0)
 	{
@@ -17,22 +18,20 @@ int main()
 	{
 		printf("driver open success\n");
 	}
-	struct data s;
 	printf("user app 1 is running\n");
-	s.delay=5000;
 	printf("Enter data to send to driver \n");
-	scanf("%[^\n]s",s.data);
-	ioctl(dev,STRUCT_WR,&s);
-	printf("data send to kernel \n");
-	char buf[200];
-	ioctl(dev,DATA_RD,buf);
-	printf("data from kernel is %s\n",buf);
+	scanf("%[^\n]s",buf);
+	ioctl(dev,APP1_WR,&buf);
+	printf("data send to user app 2 \n");
 	
-	printf("data send by RDWR \n");
+	ioctl(dev,APP2_RD,&buf);
+	printf("data from user app2 : %s\n",buf);
+	
+	/*printf("data send by RDWR \n");
 	ioctl(dev,STRUCT_RDWR,&s);
 	printf("rx data from kernal :\n");
 	printf("%s\n",s.data);
-	
+	*/
 	
 	close(dev);
 	printf("driver is close\n");
